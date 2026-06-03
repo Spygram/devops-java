@@ -33,3 +33,10 @@ test-output/
 
 # Application
 app.pid
+
+
+.env
+terraform/.terraform
+terraform/.terraform.lock.hcl
+terraform/*.tfstate
+terraform/*.tfstate.backup
