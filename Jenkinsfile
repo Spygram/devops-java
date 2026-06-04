@@ -58,15 +58,15 @@ pipeline {
                 // sh 'scp build/libs/${JAR_NAME} ubuntu@18.213.118.142:~/'
                 // sh 'scp -o StrictHostKeyChecking=no build/libs/${JAR_NAME} ubuntu@18.213.118.142:~/'
                 sshagent(credentials: ['deployer_key']) {
-            sh '''
-                scp -o StrictHostKeyChecking=no \
-                    build/libs/${JAR_NAME} \
-                    ubuntu@18.213.118.142:~/
-            '''
-                echo 'Deployment successful (placeholder).'
+                    sh '''
+                        scp -o StrictHostKeyChecking=no \
+                            build/libs/${JAR_NAME} \
+                            ubuntu@18.213.118.142:~/
+                    '''
+                        echo 'Deployment successful (placeholder).'
+                }
             }
         }
-    }
 
     post {
         always {
@@ -79,4 +79,5 @@ pipeline {
             echo 'Pipeline failed. Please check the logs for more information.'
         }
     }
+}
 }
