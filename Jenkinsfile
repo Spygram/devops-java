@@ -61,7 +61,7 @@ pipeline {
                     sh """
                         scp -o StrictHostKeyChecking=no \
                             build/libs/${JAR_NAME} \
-                            ubuntu@18.213.118.142:~/
+                            ubuntu@3.222.177.224:~/
                     """
                     echo 'Deployment successful (placeholder).'
                 }
