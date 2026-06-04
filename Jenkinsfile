@@ -56,7 +56,7 @@ pipeline {
                 // sh "docker build -t ${APP_NAME}:${BUILD_NUMBER} ."
                 // sh "docker run -d -p 8080:8080 ${APP_NAME}:${BUILD_NUMBER}"
                 // sh 'scp build/libs/${JAR_NAME} ubuntu@18.213.118.142:~/'
-                // sh 'scp -o StrictHostKeyChecking=no build/libs/${JAR_NAME} ubuntu@18.213.118.142:~/'
+                // sh 'scp -o StrictHostKeyChecking=no build/libs/${JAR_NAME} ubuntu@3.222.177.224:~/'
                 sshagent(credentials: ['deployer_key']) {
                     sh """
                         scp -o StrictHostKeyChecking=no \
