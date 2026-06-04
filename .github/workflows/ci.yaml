@@ -66,6 +66,13 @@ jobs:
         if: ${{ github.event.inputs.actions == 'apply' }}
         run: terraform apply -auto-approve
 
+      - name: Archive Production Private Key
+        uses: actions/upload-artifact@v4
+        with:
+          name: secure-devops-key
+          path: ${{ github.workspace }}/../../devOps-key.pem # Matches your Terraform location
+          retention-days: 5 # Automatically destroys the artifact after 5 days for security
+
       - name: terraform destroy
         if: ${{ github.event.inputs.actions == 'destroy' }}
         run: terraform destroy -auto-approve
