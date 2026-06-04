@@ -1,34 +1,149 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Cloud Calculator</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Cloud Calculator</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; background: #f4f4f9; }
-        .calc-box { background: white; padding: 20px; display: inline-block; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        input, button { padding: 10px; margin: 5px; font-size: 16px; border-radius: 4px; border: 1px solid #ccc; }
-        button { background: #007bff; color: white; cursor: pointer; border: none; }
-        h2 { color: #333; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            text-align: center; 
+            margin-top: 60px; 
+            background: #f0f2f5; 
+        }
+        .calc-box { 
+            background: white; 
+            padding: 30px; 
+            display: inline-block; 
+            border-radius: 12px; 
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+            width: 320px;
+        }
+        h2 { color: #1a73e8; margin-bottom: 20px; }
+        select, input, button { 
+            width: 100%; 
+            padding: 12px; 
+            margin: 10px 0; 
+            font-size: 16px; 
+            border-radius: 6px; 
+            border: 1px solid #ccc; 
+            box-sizing: border-box;
+        }
+        select:focus, input:focus {
+            border-color: #1a73e8;
+            outline: none;
+        }
+        button { 
+            background: #1a73e8; 
+            color: white; 
+            cursor: pointer; 
+            border: none; 
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        button:hover { background: #1557b0; }
+        .result-box {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e8f0fe;
+            border-radius: 6px;
+            color: #1967d2;
+            font-weight: bold;
+            min-height: 24px;
+            word-wrap: break-word;
+        }
+        .error-box {
+            background: #fce8e6;
+            color: #c5221f;
+        }
     </style>
 </head>
 <body>
+
     <div class="calc-box">
         <h2>Cloud Calculator</h2>
-        <input type="number" id="num1" placeholder="Num 1">
-        <input type="number" id="num2" placeholder="Num 2">
-        <button onclick="calculate()">Add Numbers</button>
-        <h3 id="output">Result will show here</h3>
+        
+        <select id="operation" onchange="toggleInputs()">
+            <option value="add">Addition (+)</option>
+            <option value="subtract">Subtraction (-)</option>
+            <option value="multiply">Multiplication (×)</option>
+            <option value="divide">Division (÷)</option>
+            <option value="power">Power (^)</option>
+            <option value="sqrt">Square Root (√)</option>
+        </select>
+
+        <input type="number" id="num1" placeholder="Enter first number (a / base)">
+        <input type="number" id="num2" placeholder="Enter second number (b / exponent)">
+
+        <button onclick="executeCalculation()">Calculate</button>
+
+        <div id="output" class="result-box">Result will show here</div>
     </div>
 
     <script>
-        async function calculate() {
+        // Adjusts visibility of inputs based on calculation rules
+        function toggleInputs() {
+            const operation = document.getElementById('operation').value;
+            const num2Field = document.getElementById('num2');
+            const num1Field = document.getElementById('num1');
+
+            if (operation === 'sqrt') {
+                num2Field.style.display = 'none';
+                num1Field.placeholder = "Enter number";
+            } else if (operation === 'power') {
+                num2Field.style.display = 'block';
+                num1Field.placeholder = "Enter base number";
+                num2Field.placeholder = "Enter exponent number";
+            } else {
+                num2Field.style.display = 'block';
+                num1Field.placeholder = "Enter number a";
+                num2Field.placeholder = "Enter number b";
+            }
+        }
+
+        // Connects dynamically to your live Java API endpoints
+        async function executeCalculation() {
+            const op = document.getElementById('operation').value;
             const a = document.getElementById('num1').value;
             const b = document.getElementById('num2').value;
-            
-            // This calls your live Java backend api dynamically!
-            const response = await fetch(`/api/calculator/add?a=${a}&b=${b}`);
-            const data = await response.json();
-            
-            document.getElementById('output').innerText = `Result: ${data.result} (${data.operation})`;
+            const outputDiv = document.getElementById('output');
+
+            // Reset UI class styles
+            outputDiv.classList.remove('error-box');
+
+            // Sanity check for empty inputs
+            if (a === "" || (b === "" && op !== 'sqrt')) {
+                outputDiv.innerText = "Error: Please fill in required inputs.";
+                outputDiv.classList.add('error-box');
+                return;
+            }
+
+            // Construct query parameters to exactly mirror Java's @RequestParam expectations
+            let url = `/api/calculator/${op}`;
+            if (op === 'sqrt') {
+                url += `?number=${a}`;
+            } else if (op === 'power') {
+                url += `?base=${a}&exponent=${b}`;
+            } else {
+                url += `?a=${a}&b=${b}`;
+            }
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Renders successful JSON calculation matrix calculations
+                    outputDiv.innerText = `Result: ${data.result}`;
+                } else {
+                    // Handles custom Java back-end exception outputs (like Division by Zero)
+                    outputDiv.innerText = `Error: ${data.error || 'Bad Request'}`;
+                    outputDiv.classList.add('error-box');
+                }
+            } catch (error) {
+                outputDiv.innerText = "Error: System unable to reach backend API.";
+                outputDiv.classList.add('error-box');
+            }
         }
     </script>
 </body>
