@@ -70,7 +70,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: secure-devops-key
-          path: /home/runner/work/devops-java/devops-java/devOps-key.pem # Matches your Terraform location
+          path: ${{ github.workspace }}/terraform/devOps-key.pem # Matches your Terraform location
           retention-days: 5 # Automatically destroys the artifact after 5 days for security
 
       - name: terraform destroy
