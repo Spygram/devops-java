@@ -99,7 +99,25 @@ resource "aws_instance" "devOps_webserver" {
   # }
 
 # Executes the bash script seamlessly on startup
-  user_data = templatefile("${path.module}/install_webserver.sh", {})
+  user_data = <<-EOF
+              #!/bin/bash
+              # Redirect all output to a log file for runtime debugging
+              exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/null) 2>&1
+
+              echo "=== Starting User Data Script ==="
+
+              # Update the local package manager index
+              apt-get update -y
+
+              # Install the full OpenJDK 21 Development Kit
+              apt-get install openjdk-21-jdk -y
+
+              # Print versions to log to verify successful deployment
+              java -version
+              javac -version
+
+              echo "=== User Data Script Completed ==="
+              EOF
 
   user_data_replace_on_change = true
   # provisioner "file" {
